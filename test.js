@@ -1,10 +1,21 @@
-import pool from "./db.js";
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
 
-(async () => {
-  try {
-    const [rows] = await pool.query("SELECT 1 + 1 AS result");
-    console.log("DB Connected:", rows[0].result);
-  } catch (err) {
-    console.error("DB Connection Error:", err);
-  }
-})();
+dotenv.config();
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+});
+
+try {
+  const [rows] = await pool.query("SELECT NOW() AS now_time");
+  console.log("✅ Connected! Current time:", rows[0].now_time);
+} catch (err) {
+  console.error("❌ Connection failed:", err);
+}
